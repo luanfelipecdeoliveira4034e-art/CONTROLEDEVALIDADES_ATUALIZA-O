@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Validade - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="brand">
+                <h1 id="btn-home" style="cursor: pointer;">Web Validade</h1>
+                <p id="dashboard-subtitle">Painel Geral de Monitoramento</p>
+            </div>
+            <div class="header-actions">
+                <button id="btn-back" class="btn-back hidden">⬅ Voltar ao Início</button>
+                <button id="btn-logout" class="btn-logout">Sair do Sistema</button>
+            </div>
+        </header>
+
+        <!-- ABA COMPLETA DO DASHBOARD PRINCIPAL -->
+        <div id="view-dashboard" class="dashboard-grid">
+            
+            <!-- CARD ADICIONAR APENAS COM O ÍCONE DE MAIS -->
+            <div class="dash-card card-green" id="btn-card-adicionar">
+                <div class="card-icon">➕</div>
+                <div class="card-info">
+                    <h3>ADICIONAR</h3>
+                </div>
+            </div>
+
+            <div class="dash-card card-blue" id="btn-card-avencer">
+                <div class="card-icon">📅</div>
+                <div class="card-info">
+                    <h3>A VENCER</h3>
+                    <span class="card-counter" id="count-avencer">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-lightgreen">
+                <div class="card-icon">✅</div>
+                <div class="card-info">
+                    <h3>CONFERIDOS</h3>
+                    <span class="card-counter" id="count-conferidos">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-red">
+                <div class="card-icon">❌</div>
+                <div class="card-info">
+                    <h3>VENCIDOS</h3>
+                    <span class="card-counter" id="count-vencidos">0</span>
+                </div>
+            </div>
+
+            <!-- CARD DE PRODUTOS COLETADOS -->
+            <div class="dash-card card-purple" id="btn-card-coletados">
+                <div class="card-icon">📦</div>
+                <div class="card-info">
+                    <h3>PRODUTOS COLETADOS</h3>
+                    <span class="card-counter" id="count-coletados">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-yellow">
+                <div class="card-icon">⭐</div>
+                <div class="card-info">
+                    <h3>MARCADOS</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-lightpurple">
+                <div class="card-icon">💵</div>
+                <div class="card-info">
+                    <h3>REBAIXAS</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-darkblue">
+                <div class="card-icon">👥</div>
+                <div class="card-info">
+                    <h3>COLABORADOR</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-darkpurple">
+                <div class="card-icon">📍</div>
+                <div class="card-info">
+                    <h3>SETOR</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-pink">
+                <div class="card-icon">🏪</div>
+                <div class="card-info">
+                    <h3>LOJAS</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-teal">
+                <div class="card-icon">🚚</div>
+                <div class="card-info">
+                    <h3>FORNECEDOR</h3>
+                    <span class="card-counter">0</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-darkest">
+                <div class="card-icon">📊</div>
+                <div class="card-info">
+                    <h3>ESTATÍSTICA</h3>
+                    <span class="card-title-lg">Validade</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-cyan">
+                <div class="card-icon">⚙️</div>
+                <div class="card-info">
+                    <h3>CONFIGURAÇÃO</h3>
+                </div>
+            </div>
+
+            <div class="dash-card card-brown">
+                <div class="card-icon">🗑️</div>
+                <div class="card-info">
+                    <h3>PRODUTOS</h3>
+                    <span class="card-title-lg">Excluídos</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-slate" id="btn-card-database">
+                <div class="card-icon">🗄️</div>
+                <div class="card-info">
+                    <h3>BANCO DE DADOS</h3>
+                    <span class="card-counter" id="count-cloud">0</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ABA 1: ADICIONAR NOVO PRODUTO -->
+        <div id="view-add-product" class="page-content hidden">
+            <section class="module-section">
+                <h2>Adicionar Novo Produto</h2>
+                <div id="scanner-wrapper" class="hidden">
+                    <div id="reader"></div>
+                    <button type="button" id="btn-stop-scan" class="btn-scan-stop">Fechar Câmera</button>
+                </div>
+                <form id="product-form" class="product-form">
+                    <div class="form-group size-medium">
+                        <label for="product-barcode">Código de Barras</label>
+                        <div class="barcode-input-container">
+                            <input type="text" id="product-barcode" placeholder="Código">
+                            <button type="button" id="btn-scan" class="btn-scan-trigger" title="Escanear com a câmera">📷 Scan</button>
+                        </div>
+                    </div>
+                    <div class="form-group size-large">
+                        <label for="product-name">Nome do Produto</label>
+                        <input type="text" id="product-name" placeholder="Ex: Feijão Carioca 1kg" required>
+                    </div>
+                    <div class="form-group size-mini">
+                        <label for="product-quantity">Qtd.</label>
+                        <input type="number" id="product-quantity" min="1" value="1" required>
+                    </div>
+                    <div class="form-group size-medium">
+                        <label for="product-expiry">Data de Vencimento</label>
+                        <input type="date" id="product-expiry" required>
+                    </div>
+                    <div class="form-group size-medium">
+                        <label for="product-sector">Setor</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="product-sector" required style="flex: 1;">
+                                <option value="">Selecione um Setor</option>
+                            </select>
+                            <button type="button" id="btn-add-sector-modal" class="btn-small" style="padding: 0 10px;">+</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit-prod">Salvar Produto</button>
+                </form>
+            </section>
+        </div>
+
+        <!-- MODAL DE CADASTRO DE SETOR -->
+        <div id="modal-sector" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+            <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px;">
+                <h3>Adicionar Novo Setor</h3>
+                <form id="sector-form" style="margin-top: 15px;">
+                    <div class="form-field" style="margin-bottom: 15px;">
+                        <label for="new-sector-name">Nome do Setor</label>
+                        <input type="text" id="new-sector-name" placeholder="Ex: Mercearia, Frios, Bebidas" required style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" id="btn-close-sector-modal" style="background: #cbd5e1; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                        <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ABA 2: LISTA DE PRODUTOS COLETADOS (SEM COLUNA STATUS) -->
+        <div id="view-coletados" class="page-content hidden">
+            <section class="module-section">
+                <h2>Lista de Produtos Coletados</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cód. Barras</th>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Vencimento</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ABA 3: BANCO DE DADOS -->
+        <div id="view-database" class="page-content hidden">
+            <section class="module-section db-box">
+                <div class="db-header-row">
+                    <h2 class="db-title">☁️ Banco de Dados</h2>
+                    <span class="badge-cloud" id="panel-cloud-counter">0 PRODUTOS NA NUVEM</span>
+                </div>
+                
+                <p class="db-subtitle">▼ Gerenciar Banco (Importar CSV)</p>
+                
+                <div class="csv-upload-area">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="csv-file-input" accept=".csv">
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ABA NOVA: PRODUTOS A VENCER (PRÓXIMOS 10 DIAS) -->
+        <div id="view-avencer" class="page-content hidden">
+            <section class="module-section">
+                <h2>Produtos a Vencer (Próximos 10 dias)</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cód. Barras</th>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Vencimento</th>
+                                <th>Faltam</th>
+                            </tr>
+                        </thead>
+                        <tbody id="avencer-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
