@@ -278,8 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
             listaSetores.forEach((setor) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${setor.nome}</strong></td>
-                    <td style="text-align: center;">
+                    <td data-label="Setor"><strong>${setor.nome}</strong></td>
+                    <td data-label="Ação" style="text-align: center;">
                         <button class="btn-del btn-del-sector" data-id="${setor.id}">Remover</button>
                     </td>
                 `;
@@ -320,8 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
             listaColaboradores.forEach((colaborador) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${colaborador.nome}</strong></td>
-                    <td style="text-align: center;">
+                    <td data-label="Colaborador"><strong>${colaborador.nome}</strong></td>
+                    <td data-label="Ação" style="text-align: center;">
                         <button class="btn-del btn-del-colaborador" data-id="${colaborador.id}">Remover</button>
                     </td>
                 `;
@@ -541,22 +541,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const expDate = new Date(product.expiry + 'T00:00:00');
             const barcodeText = product.barcode ? product.barcode : '---';
             const qtyText = product.quantity ? product.quantity : '1';
-            const sectorText = product.sector ? product.sector : 'Geral'; // Adicionado
+            const sectorText = product.sector ? product.sector : 'Geral';
 
             const [ano, mes, dia] = product.expiry.split('-');
             const dataFormatada = (ano && mes && dia) ? `${dia}/${mes}/${ano}` : expDate.toLocaleDateString('pt-BR');
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
-                <td><strong>${product.name}</strong></td>
-                <td><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td> <td><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
-                <td>${dataFormatada}</td>
-                <td><button class="btn-del" data-id="${product.id}">Remover</button></td>
+                <td data-label="Cód. Barras"><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
+                <td data-label="Produto"><strong>${product.name}</strong></td>
+                <td data-label="Setor"><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
+                <td data-label="Qtd"><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
+                <td data-label="Vencimento">${dataFormatada}</td>
+                <td data-label="Ação"><button class="btn-del" data-id="${product.id}">Remover</button></td>
             `;
             tableBody.appendChild(tr);
         });
-        
+
         document.querySelectorAll('.btn-del:not(.btn-del-sector):not(.btn-del-colaborador)').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.getAttribute('data-id');
@@ -600,11 +601,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
-                        <td><strong>${product.name}</strong></td>
-                        <td><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
-                        <td><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td> <td>${dataFormatada}</td>
-                        <td><span class="badge vencido" style="background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">${diffDays} dias</span></td>
+                        <td data-label="Cód. Barras"><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
+                        <td data-label="Produto"><strong>${product.name}</strong></td>
+                        <td data-label="Setor"><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
+                        <td data-label="Qtd"><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
+                        <td data-label="Vencimento">${dataFormatada}</td>
+                        <td data-label="Dias"><span class="badge vencido" style="background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">${diffDays} dias</span></td>
                     `;
                     avencerTableBody.appendChild(tr);
                 }
