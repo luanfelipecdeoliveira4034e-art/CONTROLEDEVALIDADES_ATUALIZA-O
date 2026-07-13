@@ -492,7 +492,7 @@ tr:hover td {
 }
 
 /* ==========================================================================
-   10. OTIMIZAÇÃO COMPACTA PARA DISPOSITIVOS MÓVEIS (CELULARES)
+   10. OTIMIZAÇÃO DE TABELAS RESPONSIVAS (CARDS EMPILHADOS NO CELULAR)
    ========================================================================== */
 @media (max-width: 768px) {
     body {
@@ -504,55 +504,80 @@ tr:hover td {
         padding: 12px !important;
     }
 
-    /* Ajusta os textos e colunas da tabela para não quebrarem a tela */
-    table {
-        width: 100%;
-        font-size: 13px;
+    /* Oculta o cabeçalho original da tabela (thead) pois usaremos labels nos cards */
+    table thead {
+        display: none;
     }
 
-    /* Melhora o alinhamento e o aproveitamento de espaço no celular */
-    th, td {
-        padding: 10px 4px !important; 
-        text-align: left;
-        vertical-align: top; /* <--- ALINHA TUDO NO TOPO DA LINHA */
+    /* Transforma os elementos da tabela em blocos empilháveis */
+    table, tbody, tr, td {
+        display: block;
+        width: 100% !important;
     }
 
-    /* Força o código de barras a ficar compacto e cinza sutil */
-    td span[style*="font-family: monospace"] {
-        font-size: 11px;
-        letter-spacing: -0.5px;
+    /* Cada linha (tr) vira um card individual bem definido */
+    tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
-    /* Organiza o bloco do nome do produto */
+    tr:hover td {
+        background-color: transparent !important;
+    }
+
+    /* Estilização de cada campo (td) dentro do card */
+    td {
+        padding: 6px 0 !important;
+        border: none !important;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Alinha o rótulo à esquerda e o valor à direita */
+    }
+
+    /* Garante que o nome do produto tenha destaque total e quebre linha corretamente */
     td strong {
         display: block;
-        overflow: visible;
-        text-overflow: clip;
-        font-size: 13px;
-        line-height: 1.3;
+        font-size: 14px;
+        line-height: 1.4;
         word-break: break-word;
-        padding-right: 6px; /* Dá um respiro antes da coluna 'Qtd' */
+        text-align: right;
+        max-width: 70%;
+        color: #0f172a;
     }
 
-    /* Ajuste fino de largura para dar prioridade ao nome do produto */
-    th:nth-child(1), td:nth-child(1) { width: 18%; } /* Cód. Barras */
-    th:nth-child(2), td:nth-child(2) { width: 32%; } /* Produto */
-    th:nth-child(3), td:nth-child(3) { width: 18%; } /* Setor (Novo) */
-    th:nth-child(4), td:nth-child(4) { width: 8%; }  /* Qtd */
-    th:nth-child(5), td:nth-child(5) { width: 14%; } /* Vencimento / Faltam */
-    th:nth-child(6), td:nth-child(6) { width: 12%; } /* Ação */
+    /* Adiciona identificadores de texto (labels) antes dos valores para o usuário saber o que é */
+    td::before {
+        content: attr(data-label);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
 
-    /* Enxuga o botão de remover para virar um elemento de toque rápido e menor */
-    .btn-del {
-        padding: 4px 8px !important;
+    /* Alinha os botões e badges para a direita no celular */
+    .badge-sector {
         font-size: 11px !important;
+        padding: 4px 8px !important;
+    }
+
+    .btn-del {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
         background-color: #ef4444 !important;
         color: white !important;
         border: none !important;
-        border-radius: 4px;
+        border-radius: 6px !important;
+        width: auto !important;
     }
-    
-    /* Ajuste fino no cabeçalho do app para não amassar os botões */
+
+    /* Ajuste para que o cabeçalho do app não amasse os botões no topo */
     .dashboard-header {
         flex-direction: column;
         gap: 10px;
