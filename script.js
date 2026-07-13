@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAllTabs();
         if (viewColaborador) viewColaborador.classList.remove('hidden');
         if (btnBack) btnBack.classList.remove('hidden');
-        if (dashboardSubtitle) dashboardSubtitle.textContent = "Gerenciar e Cadastrar Colaboradores";
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Gerenciar e Cadastrar Colaboradores da Loja";
     }
 
     function showDashboardTab() {
