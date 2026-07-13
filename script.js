@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const productNameInput = document.getElementById('product-name');
     const productQuantityInput = document.getElementById('product-quantity');
     const productExpiryInput = document.getElementById('product-expiry');
-    const productSectorInput = document.getElementById('product-sector');
+    const productSectorSelect = document.getElementById('product-sector');
 
     // 2. Elementos das Abas e Contadores
     const viewDashboard = document.getElementById('view-dashboard');
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterSectorAvencer = document.getElementById('filter-sector-avencer');
 
     // 6. Elementos do Modal de Setores
-    const btnAddSectorModal = document.getElementById('btn-add-sector-modal');
     const btnCloseSectorModal = document.getElementById('btn-close-sector-modal');
     const modalSector = document.getElementById('modal-sector');
     const sectorForm = document.getElementById('sector-form');
@@ -136,14 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnHome) btnHome.addEventListener('click', showDashboardTab);
 
     // --- CONTROLE DO MODAL DE SETOR ---
-    if (btnAddSectorModal && modalSector) {
-        btnAddSectorModal.addEventListener('click', () => {
-            modalSector.classList.remove('hidden');
-            modalSector.style.display = 'flex'; // Garante o alinhamento centralizado
-            newSectorNameInput.focus();
-        });
-    }
-
     if (btnCloseSectorModal && modalSector) {
         btnCloseSectorModal.addEventListener('click', () => {
             modalSector.classList.add('hidden');
@@ -176,26 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ATUALIZAR O SELECT DE SETORES EM TEMPO REAL ---
-    if (productSectorInput) {
+    // --- GARANTE O PREENCHIMENTO AUTOMÁTICO DAS OPÇÕES NO SELECT DO FORMULÁRIO DE ADICIONAR ---
+    if (productSectorSelect) {
         onSnapshot(setoresCollection, (snapshot) => {
-            // Mantém a opção padrão limpa
-            productSectorInput.innerHTML = '<option value="">Selecione um Setor</option>';
+            productSectorSelect.innerHTML = '<option value="">Selecione um Setor</option>';
             
-            // Cria uma lista ordenada para os setores ficarem em ordem alfabética
             let listaSetores = [];
             snapshot.forEach((doc) => {
                 listaSetores.push({ id: doc.id, ...doc.data() });
             });
             
+            // Ordena em ordem alfabética para facilitar a escolha
             listaSetores.sort((a, b) => a.nome.localeCompare(b.nome));
 
-            // Alimenta as opções do select
             listaSetores.forEach((setor) => {
                 const option = document.createElement('option');
-                option.value = setor.nome; // Ou setor.id se preferir salvar o ID no produto
+                option.value = setor.nome; 
                 option.textContent = setor.nome;
-                productSectorInput.appendChild(option);
+                productSectorSelect.appendChild(option);
             });
         });
     }
@@ -477,6 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- SALVAR PRODUTO MANUAL NO FIRESTORE ---
+    // O formulário captura apenas o valor selecionado do setor (sem criar novos setores)
     if (productForm) {
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -484,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = productNameInput.value.trim();
             const quantity = productQuantityInput.value || 1;
             const expiry = productExpiryInput.value;
-            const sector = productSectorInput.value;
+            const sector = productSectorSelect.value;
 
             if (name && expiry && sector) {
                 try {
@@ -499,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     productBarcodeInput.value = '';
                     productNameInput.value = '';
                     productExpiryInput.value = '';
-                    productSectorInput.value = '';
+                    productSectorSelect.value = '';
                     if (productQuantityInput) productQuantityInput.value = "1";
                     if (productBarcodeInput) productBarcodeInput.focus();
                 } catch (err) {
