@@ -82,11 +82,11 @@
                 </div>
             </div>
 
-            <div class="dash-card card-darkblue">
+            <div class="dash-card card-darkblue" id="btn-card-colaborador">
                 <div class="card-icon">👥</div>
                 <div class="card-info">
                     <h3>COLABORADOR</h3>
-                    <span class="card-counter">0</span>
+                    <span class="card-counter" id="count-colaboradores">0</span>
                 </div>
             </div>
 
@@ -281,6 +281,34 @@
                         </thead>
                         <tbody id="sector-table-body">
                             </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- MÓDULO GERENCIAR COLABORADORES -->
+        <div id="view-colaborador" class="page-content hidden">
+            <section class="module-section">
+                <h2>👥 Cadastrar e Gerenciar Colaboradores</h2>
+                
+                <form id="direct-colaborador-form" class="product-form" style="margin-bottom: 24px; align-items: flex-end;">
+                    <div class="form-group size-large">
+                        <label for="direct-colaborador-name">Nome do Novo Colaborador</label>
+                        <input type="text" id="direct-colaborador-name" placeholder="Ex: JOÃO SILVA, MARIA SOUZA" required>
+                    </div>
+                    <button type="submit" class="btn-submit-prod" style="background-color: #16a34a;">+ Cadastrar Colaborador</button>
+                </form>
+
+                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">Colaboradores Existentes</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome do Colaborador</th>
+                                <th style="width: 15%; text-align: center;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="colaborador-table-body"></tbody>
                     </table>
                 </div>
             </section>
