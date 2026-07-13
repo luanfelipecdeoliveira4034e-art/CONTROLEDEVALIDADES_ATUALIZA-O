@@ -574,3 +574,19 @@ tr:hover td {
         height: auto;
     }
 }
+
+/* ==========================================================================
+   11. PERSONALIZAÇÃO COMPLEMENTAR PARA GERENCIAMENTO DE SETORES
+   ========================================================================== */
+.btn-del-sector {
+    padding: 6px 14px !important;
+    width: auto !important;
+    display: inline-block;
+}
+
+#direct-sector-form {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
