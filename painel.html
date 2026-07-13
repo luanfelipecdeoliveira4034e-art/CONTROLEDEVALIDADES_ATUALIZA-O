@@ -178,14 +178,11 @@
                         <label for="product-expiry">Data de Vencimento</label>
                         <input type="date" id="product-expiry" required>
                     </div>
-                    <div class="form-group size-medium">
+                    <div class="form-field">
                         <label for="product-sector">Setor</label>
-                        <div style="display: flex; gap: 8px;">
-                            <select id="product-sector" required style="flex: 1;">
-                                <option value="">Selecione um Setor</option>
-                            </select>
-                            <button type="button" id="btn-add-sector-modal" class="btn-small" style="padding: 0 10px;">+</button>
-                        </div>
+                        <select id="product-sector" required>
+                            <option value="">Selecione um Setor</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn-submit-prod">Salvar Produto</button>
                 </form>
