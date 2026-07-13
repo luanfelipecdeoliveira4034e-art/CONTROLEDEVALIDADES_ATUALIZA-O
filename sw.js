@@ -1,11 +1,11 @@
-const CACHE_NAME = 'web-validade-v70'; // Versão atualizada para forçar a limpeza total do navegador
+const CACHE_NAME = 'web-validade-v65'; // Atualizado para v65 para limpar o cache antigo e aplicar as correções
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
-  './manifest.json',
-  './painel.html'
+  './firebase-config.js',
+  './manifest.json'
 ];
 
 // Instalação: Salva os arquivos essenciais no cache
@@ -13,14 +13,14 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('Cache atualizado e mapeado');
+                console.log('Cache aberto e arquivos mapeados');
                 return cache.addAll(urlsToCache);
             })
     );
     self.skipWaiting();
 });
 
-// Ativação: Limpa absolutamente todos os caches antigos anteriores
+// Ativação: Limpa caches antigos
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -34,10 +34,9 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    return self.clients.claim();
 });
 
-// Busca (Fetch): Tenta a rede primeiro para garantir dados atualizados, se falhar usa o cache
+// Busca (Fetch): Tenta a rede primeiro, se falhar (offline), usa o cache
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(event.request).catch(() => {

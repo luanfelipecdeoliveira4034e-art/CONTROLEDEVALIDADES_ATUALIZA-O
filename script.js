@@ -12,336 +12,467 @@ const firebaseConfig = {
     appId: "1:163605465156:web:8f7728cbf73e6bf6265411"
 };
 
-// Inicializa o Firebase e o Firestore
+// Inicializa o Firebase e o Firestore (Mantenha como está no topo)
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const produtosCollection = collection(db, "produtos");
 const catalogoCollection = collection(db, "catalogo");
 const setoresCollection = collection(db, "setores");
 
+// --- TODO O RESTANTE DO CÓDIGO DEVE FICAR DENTRO DESTE EVENTO ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementos do Formulário e UI de Produtos
+    
+    // 1. Elementos do Formulário e UI
     const productForm = document.getElementById('product-form');
     const productBarcodeInput = document.getElementById('product-barcode');
     const productNameInput = document.getElementById('product-name');
     const productQuantityInput = document.getElementById('product-quantity');
     const productExpiryInput = document.getElementById('product-expiry');
-    const productSectorSelect = document.getElementById('product-sector');
+    const productSectorInput = document.getElementById('product-sector');
 
-    // Elementos da Nova Tela de Setores
-    const sectorForm = document.getElementById('sector-form');
-    const newSectorNameInput = document.getElementById('new-sector-name');
-    const setoresTableBody = document.getElementById('setores-table-body');
-    const dashSetorCounter = document.getElementById('dash-setor-counter');
+    // 2. Elementos das Abas e Contadores
+    const viewDashboard = document.getElementById('view-dashboard');
+    const viewAddProduct = document.getElementById('view-add-product');
+    const viewColetados = document.getElementById('view-coletados');
+    const viewDatabase = document.getElementById('view-database');
+    const viewAVencer = document.getElementById('view-avencer');
 
-    // Botões de Navegação do Dashboard
     const btnCardAdicionar = document.getElementById('btn-card-adicionar');
-    const btnCardVencidos = document.getElementById('btn-card-vencidos');
-    const btnCardVencendo = document.getElementById('btn-card-vencendo');
-    const btnCardAvencer = document.getElementById('btn-card-avencer');
-    const btnCardBanco = document.getElementById('btn-card-banco');
-    const btnCardSetor = document.getElementById('btn-card-setor');
-
+    const btnCardDatabase = document.getElementById('btn-card-database');
+    const btnCardColetados = document.getElementById('btn-card-coletados');
+    const btnCardAVencer = document.getElementById('btn-card-avencer');
     const btnBack = document.getElementById('btn-back');
     const btnHome = document.getElementById('btn-home');
     const btnLogout = document.getElementById('btn-logout');
 
-    // Telas (Views)
-    const viewDashboard = document.getElementById('view-dashboard');
-    const viewAdicionar = document.getElementById('view-adicionar');
-    const viewVencidos = document.getElementById('view-vencidos');
-    const viewVencendo = document.getElementById('view-vencendo');
-    const viewBanco = document.getElementById('view-banco');
-    const viewAvencer = document.getElementById('view-avencer');
-    const viewSetores = document.getElementById('view-setores');
+    const countAdicionar = document.getElementById('count-adicionar');
+    const countVencidos = document.getElementById('count-vencidos');
+    const countAVencer = document.getElementById('count-avencer');
+    const countConferidos = document.getElementById('count-conferidos');
+    const countColetados = document.getElementById('count-coletados');
 
-    // Tabelas e Contadores Gerais
-    const vencidosTableBody = document.getElementById('vencidos-table-body');
-    const vencendoTableBody = document.getElementById('vencendo-table-body');
+    const tableBody = document.getElementById('product-table-body');
     const avencerTableBody = document.getElementById('avencer-table-body');
-    
-    const dashVencidosCounter = document.getElementById('dash-vencidos-counter');
-    const dashVencendoCounter = document.getElementById('dash-vencendo-counter');
-    const dashAvencerCounter = document.getElementById('dash-avencer-counter');
+    const dashboardSubtitle = document.getElementById('dashboard-subtitle');
+
+    // 3. Elementos do Banco de Dados / CSV
+    const csvFileInput = document.getElementById('csv-file-input');
+    const countCloud = document.getElementById('count-cloud');
     const panelCloudCounter = document.getElementById('panel-cloud-counter');
 
-    // Input CSV
-    const csvFileInput = document.getElementById('csv-file-input');
-
-    // Variável de controle do Scanner de Câmera
-    let html5QrcodeScanner = null;
-    const btnStartScan = document.getElementById('btn-start-scan');
+    // 4. Elementos do Scanner
+    const btnScan = document.getElementById('btn-scan');
     const btnStopScan = document.getElementById('btn-stop-scan');
+    const scannerWrapper = document.getElementById('scanner-wrapper');
+    let html5QrcodeScanner = null;
 
-    // --- SISTEMA DE NAVEGAÇÃO DE TELAS ---
-    function switchView(targetView) {
-        const views = [viewDashboard, viewAdicionar, viewVencidos, viewVencendo, viewBanco, viewAvencer, viewSetores];
-        views.forEach(v => { if (v) v.classList.add('hidden'); });
-        
-        if (targetView) targetView.classList.remove('hidden');
+    // 5. Elementos de Filtro
+    const filterSectorAvencer = document.getElementById('filter-sector-avencer');
 
-        if (targetView === viewDashboard) {
-            if (btnBack) btnBack.classList.add('hidden');
-            stopScanner(); 
-        } else {
-            if (btnBack) btnBack.classList.remove('hidden');
-        }
+    // 6. Elementos do Modal de Setores
+    const btnAddSectorModal = document.getElementById('btn-add-sector-modal');
+    const btnCloseSectorModal = document.getElementById('btn-close-sector-modal');
+    const modalSector = document.getElementById('modal-sector');
+    const sectorForm = document.getElementById('sector-form');
+    const newSectorNameInput = document.getElementById('new-sector-name');
+
+    // 7. Estados Locais
+    let localProducts = [];
+    let localCatalogo = [];
+    let currentSectorFilter = 'todos';
+
+    // --- SISTEMA DE ALTERNÂNCIA DE ABAS ---
+    function showAddProductTab() {
+        hideAllTabs();
+        if (viewAddProduct) viewAddProduct.classList.remove('hidden');
+        if (btnBack) btnBack.classList.remove('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Adicionar Produto ao Estoque";
+        if (productBarcodeInput) productBarcodeInput.focus();
     }
 
-    if (btnCardAdicionar) btnCardAdicionar.addEventListener('click', () => { switchView(viewAdicionar); if (productBarcodeInput) productBarcodeInput.focus(); });
-    if (btnCardVencidos) btnCardVencidos.addEventListener('click', () => switchView(viewVencidos));
-    if (btnCardVencendo) btnCardVencendo.addEventListener('click', () => switchView(viewVencendo));
-    if (btnCardAvencer) btnCardAvencer.addEventListener('click', () => switchView(viewAvencer));
-    if (btnCardBanco) btnCardBanco.addEventListener('click', () => switchView(viewBanco));
-    if (btnCardSetor) btnCardSetor.addEventListener('click', () => switchView(viewSetores));
+    function showDatabaseTab() {
+        hideAllTabs();
+        if (viewDatabase) viewDatabase.classList.remove('hidden');
+        if (btnBack) btnBack.classList.remove('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Gerenciamento de Nuvem e Integração";
+    }
 
-    if (btnBack) btnBack.addEventListener('click', () => switchView(viewDashboard));
-    if (btnHome) btnHome.addEventListener('click', () => switchView(viewDashboard));
+    function showColetadosTab() {
+        hideAllTabs();
+        if (viewColetados) viewColetados.classList.remove('hidden');
+        if (btnBack) btnBack.classList.remove('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Produtos Coletados / Lista Geral";
+    }
 
-    // --- LOGICA EXCLUSIVA DA PÁGINA DE SETORES ---
+    function showAVencerTab() {
+        hideAllTabs();
+        if (viewAVencer) viewAVencer.classList.remove('hidden');
+        if (btnBack) btnBack.classList.remove('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Produtos Críticos - Vencimento Próximo";
+        renderAVencerTable();
+    }
+
+    function showDashboardTab() {
+        stopScanner();
+        hideAllTabs();
+        if (viewDashboard) viewDashboard.classList.remove('hidden');
+        if (btnBack) btnBack.classList.add('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Painel Geral de Monitoramento";
+    }
+
+    function hideAllTabs() {
+        if (viewDashboard) viewDashboard.classList.add('hidden');
+        if (viewAddProduct) viewAddProduct.classList.add('hidden');
+        if (viewDatabase) viewDatabase.classList.add('hidden');
+        if (viewColetados) viewColetados.classList.add('hidden');
+        if (viewAVencer) viewAVencer.classList.add('hidden');
+    }
+
+    if (btnCardAdicionar) btnCardAdicionar.addEventListener('click', showAddProductTab);
+    if (btnCardDatabase) btnCardDatabase.addEventListener('click', showDatabaseTab);
+    if (btnCardColetados) btnCardColetados.addEventListener('click', showColetadosTab);
+    if (btnCardAVencer) btnCardAVencer.addEventListener('click', showAVencerTab);
+    if (btnBack) btnBack.addEventListener('click', showDashboardTab);
+    if (btnHome) btnHome.addEventListener('click', showDashboardTab);
+
+    // --- CONTROLE DO MODAL DE SETOR ---
+    if (btnAddSectorModal && modalSector) {
+        btnAddSectorModal.addEventListener('click', () => {
+            modalSector.classList.remove('hidden');
+            modalSector.style.display = 'flex'; // Garante o alinhamento centralizado
+            newSectorNameInput.focus();
+        });
+    }
+
+    if (btnCloseSectorModal && modalSector) {
+        btnCloseSectorModal.addEventListener('click', () => {
+            modalSector.classList.add('hidden');
+            modalSector.style.display = 'none';
+            sectorForm.reset();
+        });
+    }
+
+    // --- SALVAR SETOR MANUAL NO FIRESTORE ---
     if (sectorForm) {
         sectorForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nomeSetor = newSectorNameInput.value.trim();
-            if (nomeSetor) {
+            const sectorName = newSectorNameInput.value.trim();
+
+            if (sectorName) {
                 try {
-                    await addDoc(setoresCollection, { nome: nomeSetor });
-                    newSectorNameInput.value = '';
+                    await addDoc(setoresCollection, {
+                        nome: sectorName,
+                        createdAt: new Date()
+                    });
+
+                    // Limpa e fecha o modal
+                    sectorForm.reset();
+                    modalSector.classList.add('hidden');
+                    modalSector.style.display = 'none';
                 } catch (err) {
-                    alert("Erro ao cadastrar setor: " + err.message);
+                    alert("Erro ao salvar o setor: " + err.message);
                 }
             }
         });
     }
 
-    // Escuta em tempo real a coleção de setores
-    onSnapshot(setoresCollection, (snapshot) => {
-        if (productSectorSelect) productSectorSelect.innerHTML = '<option value="">Selecione um Setor</option>';
-        if (setoresTableBody) setoresTableBody.innerHTML = '';
-        
-        let listaSetores = [];
-        snapshot.forEach(docSnap => {
-            listaSetores.push({ id: docSnap.id, nome: docSnap.data().nome });
-        });
-        
-        // Ordena em ordem alfabética
-        listaSetores.sort((a, b) => a.nome.localeCompare(b.nome));
-
-        listaSetores.forEach(setor => {
-            // 1. Alimenta o menu de escolha (Select) na página de adicionar produto
-            if (productSectorSelect) {
-                const option = document.createElement('option');
-                option.value = setor.nome;
-                option.textContent = setor.nome;
-                productSectorSelect.appendChild(option);
-            }
+    // --- ATUALIZAR O SELECT DE SETORES EM TEMPO REAL ---
+    if (productSectorInput) {
+        onSnapshot(setoresCollection, (snapshot) => {
+            // Mantém a opção padrão limpa
+            productSectorInput.innerHTML = '<option value="">Selecione um Setor</option>';
             
-            // 2. Alimenta a tabela de listagem na página gerenciadora de setores
-            if (setoresTableBody) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>📍 <strong>${setor.nome}</strong></td>
-                    <td style="text-align: center;"><button class="btn-del" data-id="${setor.id}">Apagar</button></td>
-                `;
-                
-                const btnDelSector = tr.querySelector('.btn-del');
-                btnDelSector.addEventListener('click', async () => {
-                    if (confirm(`Deseja remover o setor "${setor.nome}" permanentemente?`)) {
-                        try {
-                            await deleteDoc(doc(db, "setores", setor.id));
-                        } catch (err) {
-                            alert("Erro ao excluir setor: " + err.message);
-                        }
-                    }
-                });
-                
-                setoresTableBody.appendChild(tr);
-            }
-        });
+            // Cria uma lista ordenada para os setores ficarem em ordem alfabética
+            let listaSetores = [];
+            snapshot.forEach((doc) => {
+                listaSetores.push({ id: doc.id, ...doc.data() });
+            });
+            
+            listaSetores.sort((a, b) => a.nome.localeCompare(b.nome));
 
-        // Atualiza o número do contador no card roxo do painel principal
-        if (dashSetorCounter) dashSetorCounter.textContent = listaSetores.length;
+            // Alimenta as opções do select
+            listaSetores.forEach((setor) => {
+                const option = document.createElement('option');
+                option.value = setor.nome; // Ou setor.id se preferir salvar o ID no produto
+                option.textContent = setor.nome;
+                productSectorInput.appendChild(option);
+            });
+        });
+    }
+
+    // --- ESCUTADOR EM TEMPO REAL DOS PRODUTOS EM VALIDADE ---
+    onSnapshot(produtosCollection, (snapshot) => {
+        localProducts = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            localProducts.push({
+                id: docSnap.id,
+                barcode: data.barcode || '',
+                name: data.name || '',
+                quantity: data.quantity || '1',
+                expiry: data.expiry || '',
+                sector: data.sector || ''
+            });
+        });
+        renderTable();
+        renderAVencerTable();
+        updateCounters();
+    }, (error) => {
+        console.error("Erro ao sincronizar produtos:", error);
     });
 
-    // --- CONTROLES E GERENCIAMENTO DA CÂMERA (SCANNER) ---
-    function startScanner() {
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5Qrcode("reader");
-        }
+    // --- ESCUTADOR EM TEMPO REAL DO CATÁLOGO DO BANCO DE DADOS (CSV) ---
+    onSnapshot(catalogoCollection, (snapshot) => {
+        localCatalogo = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            localCatalogo.push({
+                barcode: String(data.barcode || '').trim(),
+                name: String(data.name || '').trim()
+            });
+        });
         
-        btnStartScan.classList.add('hidden');
-        btnStopScan.classList.remove('hidden');
+        const totalCatalogo = localCatalogo.length;
+        if (countCloud) countCloud.textContent = totalCatalogo;
+        if (panelCloudCounter) panelCloudCounter.textContent = `${totalCatalogo} PRODUTOS NA NUVEM`;
+    }, (error) => {
+        console.error("Erro ao sincronizar catálogo:", error);
+    });
 
-        html5QrcodeScanner.start(
-            { facingMode: "environment" },
-            { fps: 15, qrbox: { width: 260, height: 150 } },
-            (decodedText) => {
-                if (productBarcodeInput) {
-                    productBarcodeInput.value = decodedText;
-                    const event = new Event('input', { bubbles: true });
-                    productBarcodeInput.dispatchEvent(event);
-                }
-                stopScanner();
-            },
-            (errorMessage) => { }
-        ).catch(err => {
-            alert("Erro ao iniciar câmera: " + err);
-            stopScanner();
+    // --- FUNÇÃO DE AUTO-PREENCHIMENTO ---
+    function buscarProdutoPorCodigo(barcode) {
+        if (!barcode || barcode.trim() === '') return;
+        
+        const barcodeLimpo = String(barcode).trim();
+        const produtoEncontrado = localCatalogo.find(p => p.barcode === barcodeLimpo);
+        
+        if (produtoEncontrado) {
+            if (productNameInput) {
+                productNameInput.value = produtoEncontrado.name;
+                if (productExpiryInput) productExpiryInput.focus();
+            }
+        } else {
+            if (productNameInput) productNameInput.value = '';
+        }
+    }
+
+    if (productBarcodeInput) {
+        productBarcodeInput.addEventListener('blur', () => {
+            buscarProdutoPorCodigo(productBarcodeInput.value);
+        });
+        productBarcodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarProdutoPorCodigo(productBarcodeInput.value);
+            }
         });
     }
+
+    // --- IMPORTAÇÃO DE ARQUIVO CSV ---
+    if (csvFileInput) {
+        csvFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    const text = event.target.result;
+                    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+                    
+                    let batch = writeBatch(db);
+                    let countInBatch = 0;
+                    let totalImportados = 0;
+
+                    for (let index = 1; index < lines.length; index++) {
+                        const line = lines[index];
+                        const columns = line.includes(';') ? line.split(';') : line.split(',');
+                        
+                        if (columns.length >= 2) {
+                            const barcode = columns[0]?.replace(/"/g, '').trim() || '';
+                            const name = columns[1]?.replace(/"/g, '').trim() || '';
+
+                            if (barcode && name) {
+                                const docRef = doc(collection(db, "catalogo"));
+                                batch.set(docRef, { barcode, name });
+                                
+                                countInBatch++;
+                                totalImportados++;
+
+                                if (countInBatch === 400) {
+                                    await batch.commit();
+                                    batch = writeBatch(db);
+                                    countInBatch = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    if (countInBatch > 0) {
+                        await batch.commit();
+                    }
+
+                    if (totalImportados > 0) {
+                        alert(`Sucesso! ${totalImportados} produtos salvos permanentemente na nuvem.`);
+                        csvFileInput.value = "";
+                    } else {
+                        alert("Não foi possível ler os produtos. Verifique se o CSV tem código na primeira coluna e nome na segunda.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+    }
+
+    // --- LEITOR DE CÓDIGO DE BARRAS VIA CÂMERA ---
+    if (btnScan) {
+        btnScan.addEventListener('click', () => {
+            scannerWrapper.classList.remove('hidden');
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 300, height: 150 } };
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    productBarcodeInput.value = decodedText;
+                    stopScanner();
+                    buscarProdutoPorCodigo(decodedText);
+                },
+                (errorMessage) => {}
+            ).catch(err => {
+                alert("Erro ao acessar a câmera: " + err);
+                stopScanner();
+            });
+        });
+    }
+
+    if (btnStopScan) btnStopScan.addEventListener('click', stopScanner);
 
     function stopScanner() {
         if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().then(() => {
-                btnStartScan.classList.remove('hidden');
-                btnStopScan.classList.add('hidden');
-            }).catch(err => console.log("Erro ao parar:", err));
+                scannerWrapper.classList.add('hidden');
+            }).catch(err => console.log(err));
         } else {
-            if (btnStartScan) btnStartScan.classList.remove('hidden');
-            if (btnStopScan) btnStopScan.classList.add('hidden');
+            scannerWrapper.classList.add('hidden');
         }
     }
 
-    if (btnStartScan) btnStartScan.addEventListener('click', startScanner);
-    if (btnStopScan) btnStopScan.addEventListener('click', stopScanner);
+    // --- CONTADORES DA ABA PRINCIPAL COM REGRA DE 10 DIAS ---
+    function updateCounters() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let vencidos = 0;
+        let aVencer = 0;
 
-    // --- BUSCA AUTOMÁTICA NO CATÁLOGO DO PRODUTO ---
-    if (productBarcodeInput) {
-        productBarcodeInput.addEventListener('input', () => {
-            const code = productBarcodeInput.value.trim();
-            if (code.length >= 8) {
-                const unsub = onSnapshot(catalogoCollection, (snapshot) => {
-                    snapshot.forEach(doc => {
-                        if (String(doc.data().barcode).trim() === code) {
-                            if (productNameInput) productNameInput.value = doc.data().name;
-                        }
-                    });
-                    unsub();
-                });
+        localProducts.forEach(p => {
+            const expDate = new Date(p.expiry + 'T00:00:00');
+            
+            if (expDate < today) {
+                vencidos++;
+            } else {
+                const diffTime = expDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays <= 10) {
+                    aVencer++;
+                }
             }
         });
+
+        const total = localProducts.length;
+
+        if (countAVencer) countAVencer.textContent = aVencer;
+        if (countVencidos) countVencidos.textContent = vencidos;
+        if (countConferidos) countConferidos.textContent = total;
+        if (countColetados) countColetados.textContent = total;
     }
 
-    // --- LEITURA REAL-TIME DOS PRODUTOS DO FIRESTORE ---
-    onSnapshot(produtosCollection, (snapshot) => {
-        if (vencidosTableBody) vencidosTableBody.innerHTML = '';
-        if (vencendoTableBody) vencendoTableBody.innerHTML = '';
-        if (avencerTableBody) avencerTableBody.innerHTML = '';
+    // --- RENDERIZAR TABELA (SEM STATUS - FOCO TOTAL EM DADOS + EXCLUSÃO) ---
+    function renderTable() {
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
 
-        let countVencidos = 0;
-        let countVencendo = 0;
-        let countAvencer = 0;
-        let countTotalNuvem = 0;
+        localProducts.forEach((product) => {
+            const expDate = new Date(product.expiry + 'T00:00:00');
+            const barcodeText = product.barcode ? product.barcode : '---';
+            const qtyText = product.quantity ? product.quantity : '1';
 
-        const hojeStr = new Date().toISOString().split('T')[0];
-        const hoje = new Date(hojeStr + 'T00:00:00');
+            const [ano, mes, dia] = product.expiry.split('-');
+            const dataFormatada = (ano && mes && dia) ? `${dia}/${mes}/${ano}` : expDate.toLocaleDateString('pt-BR');
 
-        snapshot.forEach((docSnap) => {
-            countTotalNuvem++;
-            const data = docSnap.data();
-            const id = docSnap.id;
-
-            const vencimento = new Date(data.expiry + 'T00:00:00');
-            const diferencaTempo = vencimento.getTime() - hoje.getTime();
-            const diferencaDias = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
-
-            const dataFormatada = data.expiry.split('-').reverse().join('/');
-
-            if (diferencaDias < 0) {
-                countVencidos++;
-                renderRow(vencidosTableBody, id, data, dataFormatada, `Vencido há ${Math.abs(diferencaDias)} dias`);
-            } else if (diferencaDias === 0) {
-                countVencendo++;
-                renderRow(vencendoTableBody, id, data, dataFormatada, 'Vence HOJE!');
-            } else if (diferencaDias > 0 && diferencaDias <= 10) {
-                countAvencer++;
-                renderRow(avencerTableBody, id, data, dataFormatada, `${diferencaDias} dias`);
-            }
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
+                <td><strong>${product.name}</strong></td>
+                <td><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
+                <td>${dataFormatada}</td>
+                <td><button class="btn-del" data-id="${product.id}">Remover</button></td>
+            `;
+            tableBody.appendChild(tr);
         });
 
-        if (dashVencidosCounter) dashVencidosCounter.textContent = countVencidos;
-        if (dashVencendoCounter) dashVencendoCounter.textContent = countVencendo;
-        if (dashAvencerCounter) dashAvencerCounter.textContent = countAvencer;
-        if (panelCloudCounter) panelCloudCounter.textContent = `${countTotalNuvem} PRODUTOS NA NUVEM`;
-    });
-
-    function renderRow(tableBody, id, data, dataFormatada, statusText) {
-        if (!tableBody) return;
-        const tr = document.createElement('tr');
-        const isAvencerTable = tableBody.id === 'avencer-table-body';
-
-        tr.innerHTML = `
-            <td>${data.barcode || '---'}</td>
-            <td>
-                <span class="product-title-cell">${data.name}</span>
-                ${data.sector ? `<span style="display:block; font-size:11px; color:#64748b; margin-top:2px;">📍 ${data.sector}</span>` : ''}
-            </td>
-            <td>${data.quantity}</td>
-            <td>${dataFormatada}</td>
-            <td>${isAvencerTable ? `<strong>${statusText}</strong>` : `<button class="btn-del" data-id="${id}">Apagar</button>`}</td>
-        `;
-
-        if (!isAvencerTable) {
-            const btnDel = tr.querySelector('.btn-del');
-            btnDel.addEventListener('click', async () => {
-                if (confirm("Deseja realmente remover este produto permanentemente?")) {
+        document.querySelectorAll('.btn-del').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.getAttribute('data-id');
+                if (confirm("Deseja remover este produto definitivamente?")) {
                     try {
                         await deleteDoc(doc(db, "produtos", id));
                     } catch (err) {
-                        alert("Erro ao excluir documento: " + err.message);
+                        alert("Erro ao deletar documento: " + err.message);
                     }
                 }
             });
-        }
-
-        tableBody.appendChild(tr);
+        });
     }
 
-    // --- IMPORTADOR DE PLANILHA CSV ---
-    if (csvFileInput) {
-        csvFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    // --- RENDERIZAR TABELA EXCLUSIVA DE PRODUTOS QUASE VENCENDO ---
+    function renderAVencerTable() {
+        if (!avencerTableBody) return;
+        avencerTableBody.innerHTML = '';
 
-            const reader = new FileReader();
-            reader.onload = async (evt) => {
-                const text = evt.target.result;
-                const lines = text.split('\n');
-                const batch = writeBatch(db);
-                let count = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
+        localProducts.forEach((product) => {
+            const expDate = new Date(product.expiry + 'T00:00:00');
+            
+            if (expDate >= today) {
+                const diffTime = expDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    const cols = line.split(/[;,]/);
-                    if (cols.length >= 4) {
-                        const barcode = cols[0].replace(/"/g, '').trim();
-                        const name = cols[1].replace(/"/g, '').trim();
-                        const quantity = parseInt(cols[2].replace(/"/g, '').trim()) || 1;
-                        const expiry = cols[3].replace(/"/g, '').trim();
-
-                        if (name && expiry) {
-                            const newDocRef = doc(collection(db, "produtos"));
-                            batch.set(newDocRef, { barcode, name, quantity, expiry });
-                            count++;
-                        }
+                if (diffDays <= 10) {
+                    if (currentSectorFilter !== 'todos' && product.sector !== currentSectorFilter) {
+                        return;
                     }
-                }
+                    
+                    const barcodeText = product.barcode ? product.barcode : '---';
+                    const qtyText = product.quantity ? product.quantity : '1';
+                    const sectorText = product.sector ? product.sector : 'Geral';
+                    
+                    const [ano, mes, dia] = product.expiry.split('-');
+                    const dataFormatada = `${dia}/${mes}/${ano}`;
 
-                if (count > 0) {
-                    try {
-                        await batch.commit();
-                        alert(`${count} produtos importados com sucesso!`);
-                        csvFileInput.value = '';
-                    } catch (err) {
-                        alert("Erro ao salvar lote de CSV: " + err.message);
-                    }
-                } else {
-                    alert("Nenhum produto válido foi encontrado no arquivo CSV.");
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
+                        <td><strong>${product.name}</strong></td>
+                        <td><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
+                        <td><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
+                        <td>${dataFormatada}</td>
+                        <td><span class="badge vencido" style="background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">${diffDays} dias</span></td>
+                    `;
+                    avencerTableBody.appendChild(tr);
                 }
-            };
-            reader.readAsText(file, 'UTF-8');
+            }
+        });
+    }
+
+    // --- EVENTO DE FILTRO POR SETOR ---
+    if (filterSectorAvencer) {
+        filterSectorAvencer.addEventListener('change', (e) => {
+            currentSectorFilter = e.target.value;
+            renderAVencerTable();
         });
     }
 
@@ -353,9 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = productNameInput.value.trim();
             const quantity = productQuantityInput.value || 1;
             const expiry = productExpiryInput.value;
-            const sector = productSectorSelect ? productSectorSelect.value : '';
+            const sector = productSectorInput.value;
 
-            if (name && expiry) {
+            if (name && expiry && sector) {
                 try {
                     await addDoc(produtosCollection, {
                         barcode,
@@ -368,8 +499,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     productBarcodeInput.value = '';
                     productNameInput.value = '';
                     productExpiryInput.value = '';
+                    productSectorInput.value = '';
                     if (productQuantityInput) productQuantityInput.value = "1";
-                    if (productSectorSelect) productSectorSelect.value = "";
                     if (productBarcodeInput) productBarcodeInput.focus();
                 } catch (err) {
                     alert("Erro ao salvar no Firestore: " + err.message);
