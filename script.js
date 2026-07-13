@@ -18,6 +18,7 @@ const db = getFirestore(app);
 const produtosCollection = collection(db, "produtos");
 const catalogoCollection = collection(db, "catalogo");
 const setoresCollection = collection(db, "setores");
+const colaboradoresCollection = collection(db, "colaboradores");
 
 // --- TODO O RESTANTE DO CÓDIGO DEVE FICAR DENTRO DESTE EVENTO ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,12 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewDatabase = document.getElementById('view-database');
     const viewAVencer = document.getElementById('view-avencer');
     const viewSetor = document.getElementById('view-setor'); // Nova aba
+    const viewColaborador = document.getElementById('view-colaborador');
 
     const btnCardAdicionar = document.getElementById('btn-card-adicionar');
     const btnCardDatabase = document.getElementById('btn-card-database');
     const btnCardColetados = document.getElementById('btn-card-coletados');
     const btnCardAVencer = document.getElementById('btn-card-avencer');
     const btnCardSetor = document.getElementById('btn-card-setor'); // Novo card funcional
+    const btnCardColaborador = document.getElementById('btn-card-colaborador');
     const btnBack = document.getElementById('btn-back');
     const btnHome = document.getElementById('btn-home');
     const btnLogout = document.getElementById('btn-logout');
@@ -53,15 +56,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const countConferidos = document.getElementById('count-conferidos');
     const countColetados = document.getElementById('count-coletados');
     const countSetores = document.getElementById('count-setores'); // Novo contador do card
+    const countColaboradores = document.getElementById('count-colaboradores');
 
     const tableBody = document.getElementById('product-table-body');
     const avencerTableBody = document.getElementById('avencer-table-body');
     const sectorTableBody = document.getElementById('sector-table-body'); // Nova tabela interna
+    const colaboradorTableBody = document.getElementById('colaborador-table-body');
     const dashboardSubtitle = document.getElementById('dashboard-subtitle');
 
     // Elementos do formulário direto de setores
     const directSectorForm = document.getElementById('direct-sector-form');
     const directSectorNameInput = document.getElementById('direct-sector-name');
+
+    // Elementos do formulário direto de colaboradores
+    const directColaboradorForm = document.getElementById('direct-colaborador-form');
+    const directColaboradorNameInput = document.getElementById('direct-colaborador-name');
 
     // 3. Elementos do Banco de Dados / CSV
     const csvFileInput = document.getElementById('csv-file-input');
@@ -127,6 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dashboardSubtitle) dashboardSubtitle.textContent = "Gerenciar e Cadastrar Setores da Loja";
     }
 
+    function showColaboradorTab() {
+        hideAllTabs();
+        if (viewColaborador) viewColaborador.classList.remove('hidden');
+        if (btnBack) btnBack.classList.remove('hidden');
+        if (dashboardSubtitle) dashboardSubtitle.textContent = "Gerenciar e Cadastrar Colaboradores";
+    }
+
     function showDashboardTab() {
         stopScanner();
         hideAllTabs();
@@ -142,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewColetados) viewColetados.classList.add('hidden');
         if (viewAVencer) viewAVencer.classList.add('hidden');
         if (viewSetor) viewSetor.classList.add('hidden');
+        if (viewColaborador) viewColaborador.classList.add('hidden');
     }
 
     if (btnCardAdicionar) btnCardAdicionar.addEventListener('click', showAddProductTab);
@@ -149,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCardColetados) btnCardColetados.addEventListener('click', showColetadosTab);
     if (btnCardAVencer) btnCardAVencer.addEventListener('click', showAVencerTab);
     if (btnCardSetor) btnCardSetor.addEventListener('click', showSetorTab);
+    if (btnCardColaborador) btnCardColaborador.addEventListener('click', showColaboradorTab);
     if (btnBack) btnBack.addEventListener('click', showDashboardTab);
     if (btnHome) btnHome.addEventListener('click', showDashboardTab);
 
@@ -211,6 +229,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SALVAR COLABORADOR DIRETAMENTE PELA NOVA ABA ---
+    if (directColaboradorForm) {
+        directColaboradorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const colaboradorName = directColaboradorNameInput.value.trim();
+
+            if (colaboradorName) {
+                try {
+                    await addDoc(colaboradoresCollection, {
+                        nome: colaboradorName,
+                        createdAt: new Date()
+                    });
+                    directColaboradorForm.reset();
+                } catch (err) {
+                    alert("Erro ao salvar o colaborador: " + err.message);
+                }
+            }
+        });
+    }
+
     // --- ATUALIZAR SELECT, CONTADOR E TABELA DE SETORES EM TEMPO REAL ---
     onSnapshot(setoresCollection, (snapshot) => {
         let listaSetores = [];
@@ -257,6 +295,48 @@ document.addEventListener('DOMContentLoaded', () => {
                             await deleteDoc(doc(db, "setores", id));
                         } catch (err) {
                             alert("Erro ao deletar setor: " + err.message);
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    // --- ATUALIZAR CONTADOR E TABELA DE COLABORADORES EM TEMPO REAL ---
+    onSnapshot(colaboradoresCollection, (snapshot) => {
+        let listaColaboradores = [];
+        snapshot.forEach((doc) => {
+            listaColaboradores.push({ id: doc.id, ...doc.data() });
+        });
+        
+        listaColaboradores.sort((a, b) => a.nome.localeCompare(b.nome));
+
+        // 1. Atualizar o contador numérico do card
+        if (countColaboradores) countColaboradores.textContent = listaColaboradores.length;
+
+        // 2. Renderizar a tabela na aba de gerenciamento de colaboradores
+        if (colaboradorTableBody) {
+            colaboradorTableBody.innerHTML = '';
+            listaColaboradores.forEach((colaborador) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${colaborador.nome}</strong></td>
+                    <td style="text-align: center;">
+                        <button class="btn-del btn-del-colaborador" data-id="${colaborador.id}">Remover</button>
+                    </td>
+                `;
+                colaboradorTableBody.appendChild(tr);
+            });
+
+            // Evento de deleção para os botões da lista de colaboradores
+            document.querySelectorAll('.btn-del-colaborador').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm("Deseja remover este colaborador definitivamente?")) {
+                        try {
+                            await deleteDoc(doc(db, "colaboradores", id));
+                        } catch (err) {
+                            alert("Erro ao deletar colaborador: " + err.message);
                         }
                     }
                 });
@@ -476,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tableBody.appendChild(tr);
         });
 
-        document.querySelectorAll('.btn-del:not(.btn-del-sector)').forEach(btn => {
+        document.querySelectorAll('.btn-del:not(.btn-del-sector):not(.btn-del-colaborador)').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.getAttribute('data-id');
                 if (confirm("Deseja remover este produto definitivamente?")) {
