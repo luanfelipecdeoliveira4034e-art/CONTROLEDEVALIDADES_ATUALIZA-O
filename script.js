@@ -12,7 +12,7 @@ const firebaseConfig = {
     appId: "1:163605465156:web:8f7728cbf73e6bf6265411"
 };
 
-// Inicializa o Firebase e o Firestore (Mantenha como está no topo)
+// Inicializa o Firebase e o Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const produtosCollection = collection(db, "produtos");
@@ -36,11 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewColetados = document.getElementById('view-coletados');
     const viewDatabase = document.getElementById('view-database');
     const viewAVencer = document.getElementById('view-avencer');
+    const viewSetor = document.getElementById('view-setor'); // Nova aba
 
     const btnCardAdicionar = document.getElementById('btn-card-adicionar');
     const btnCardDatabase = document.getElementById('btn-card-database');
     const btnCardColetados = document.getElementById('btn-card-coletados');
     const btnCardAVencer = document.getElementById('btn-card-avencer');
+    const btnCardSetor = document.getElementById('btn-card-setor'); // Novo card funcional
     const btnBack = document.getElementById('btn-back');
     const btnHome = document.getElementById('btn-home');
     const btnLogout = document.getElementById('btn-logout');
@@ -50,16 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const countAVencer = document.getElementById('count-avencer');
     const countConferidos = document.getElementById('count-conferidos');
     const countColetados = document.getElementById('count-coletados');
+    const countSetores = document.getElementById('count-setores'); // Novo contador do card
 
     const tableBody = document.getElementById('product-table-body');
     const avencerTableBody = document.getElementById('avencer-table-body');
+    const sectorTableBody = document.getElementById('sector-table-body'); // Nova tabela interna
     const dashboardSubtitle = document.getElementById('dashboard-subtitle');
 
-    // === mapear novos elementos da aba de setores ===
-    const viewSetor = document.getElementById('view-setor');
-    const btnCardSetor = document.getElementById('btn-card-setor');
-    const countSetores = document.getElementById('count-setores');
-    const sectorTableBody = document.getElementById('sector-table-body');
+    // Elementos do formulário direto de setores
     const directSectorForm = document.getElementById('direct-sector-form');
     const directSectorNameInput = document.getElementById('direct-sector-name');
 
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Elementos de Filtro
     const filterSectorAvencer = document.getElementById('filter-sector-avencer');
 
-    // 6. Elementos do Modal de Setores
+    // 6. Elementos do Modal de Setores (Mantido para compatibilidade retroativa)
     const btnAddSectorModal = document.getElementById('btn-add-sector-modal');
     const btnCloseSectorModal = document.getElementById('btn-close-sector-modal');
     const modalSector = document.getElementById('modal-sector');
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewDatabase) viewDatabase.classList.add('hidden');
         if (viewColetados) viewColetados.classList.add('hidden');
         if (viewAVencer) viewAVencer.classList.add('hidden');
-        if (viewSetor) viewSetor.classList.add('hidden'); // <-- Adicionado para setor
+        if (viewSetor) viewSetor.classList.add('hidden');
     }
 
     if (btnCardAdicionar) btnCardAdicionar.addEventListener('click', showAddProductTab);
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnAddSectorModal && modalSector) {
         btnAddSectorModal.addEventListener('click', () => {
             modalSector.classList.remove('hidden');
-            modalSector.style.display = 'flex'; // Garante o alinhamento centralizado
+            modalSector.style.display = 'flex';
             newSectorNameInput.focus();
         });
     }
@@ -169,11 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- SALVAR SETOR MANUAL NO FIRESTORE (modal existente) ---
+    // --- SALVAR SETOR VIA MODAL ---
     if (sectorForm) {
         sectorForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const sectorName = newSectorNameInput.value.trim();
+            const sectorName = newSectorNameInput.value.trim().toUpperCase();
 
             if (sectorName) {
                 try {
@@ -181,8 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         nome: sectorName,
                         createdAt: new Date()
                     });
-
-                    // Limpa e fecha o modal
                     sectorForm.reset();
                     modalSector.classList.add('hidden');
                     modalSector.style.display = 'none';
@@ -193,63 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ATUALIZAR SELECT, CONTADOR E TABELA DE SETORES EM TEMPO REAL ---
-    onSnapshot(setoresCollection, (snapshot) => {
-        let listaSetores = [];
-        snapshot.forEach((doc) => {
-            listaSetores.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Ordena em ordem alfabética
-        listaSetores.sort((a, b) => a.nome.localeCompare(b.nome));
-
-        // 1. Atualiza o contador do card Home
-        if (countSetores) countSetores.textContent = listaSetores.length;
-
-        // 2. Alimenta as opções do select no formulário de produtos
-        if (productSectorInput) {
-            productSectorInput.innerHTML = '<option value="">Selecione um Setor</option>';
-            listaSetores.forEach((setor) => {
-                const option = document.createElement('option');
-                option.value = setor.nome;
-                option.textContent = setor.nome;
-                productSectorInput.appendChild(option);
-            });
-        }
-
-        // 3. Renderiza a tabela da nova aba de Gerenciamento de Setores
-        if (sectorTableBody) {
-            sectorTableBody.innerHTML = '';
-            listaSetores.forEach((setor) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${setor.nome}</strong></td>
-                    <td style="text-align: center;"><button class="btn-del btn-del-sector" data-id="${setor.id}">Remover</button></td>
-                `;
-                sectorTableBody.appendChild(tr);
-            });
-
-            // Evento de deletar setor
-            document.querySelectorAll('.btn-del-sector').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.target.getAttribute('data-id');
-                    if (confirm("Deseja remover este setor definitivamente? Isso não apagará os produtos dele.")) {
-                        try {
-                            await deleteDoc(doc(db, "setores", id));
-                        } catch (err) {
-                            alert("Erro ao deletar setor: " + err.message);
-                        }
-                    }
-                });
-            });
-        }
-    });
-
-    // --- SALVAR SETOR DIRETAMENTE PELA ABA DE SETORES ---
+    // --- SALVAR SETOR DIRETAMENTE PELA NOVA ABA ---
     if (directSectorForm) {
         directSectorForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const sectorName = directSectorNameInput.value.trim().toUpperCase(); // Salva em maiúsculo para padronizar
+            const sectorName = directSectorNameInput.value.trim().toUpperCase();
 
             if (sectorName) {
                 try {
@@ -265,8 +211,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ATUALIZAR O SELECT DE SETORES EM TEMPO REAL (fallback removido, já tratado acima) ---
-    // (o listener anterior foi substituído pelo bloco acima que atualiza contador, select e tabela)
+    // --- ATUALIZAR SELECT, CONTADOR E TABELA DE SETORES EM TEMPO REAL ---
+    onSnapshot(setoresCollection, (snapshot) => {
+        let listaSetores = [];
+        snapshot.forEach((doc) => {
+            listaSetores.push({ id: doc.id, ...doc.data() });
+        });
+        
+        listaSetores.sort((a, b) => a.nome.localeCompare(b.nome));
+
+        // 1. Atualizar o contador numérico do card
+        if (countSetores) countSetores.textContent = listaSetores.length;
+
+        // 2. Alimentar o dropdown select do formulário de produtos
+        if (productSectorInput) {
+            productSectorInput.innerHTML = '<option value="">Selecione um Setor</option>';
+            listaSetores.forEach((setor) => {
+                const option = document.createElement('option');
+                option.value = setor.nome;
+                option.textContent = setor.nome;
+                productSectorInput.appendChild(option);
+            });
+        }
+
+        // 3. Renderizar a tabela na aba de gerenciamento de setores
+        if (sectorTableBody) {
+            sectorTableBody.innerHTML = '';
+            listaSetores.forEach((setor) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${setor.nome}</strong></td>
+                    <td style="text-align: center;">
+                        <button class="btn-del btn-del-sector" data-id="${setor.id}">Remover</button>
+                    </td>
+                `;
+                sectorTableBody.appendChild(tr);
+            });
+
+            // Evento de deleção para os botões da lista de setores
+            document.querySelectorAll('.btn-del-sector').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm("Deseja remover este setor definitivamente? Isso não apagará os produtos vinculados a ele.")) {
+                        try {
+                            await deleteDoc(doc(db, "setores", id));
+                        } catch (err) {
+                            alert("Erro ao deletar setor: " + err.message);
+                        }
+                    }
+                });
+            });
+        }
+    });
 
     // --- ESCUTADOR EM TEMPO REAL DOS PRODUTOS EM VALIDADE ---
     onSnapshot(produtosCollection, (snapshot) => {
@@ -456,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (countColetados) countColetados.textContent = total;
     }
 
-    // --- RENDERIZAR TABELA (SEM STATUS - FOCO TOTAL EM DADOS + EXCLUSÃO) ---
+    // --- RENDERIZAR TABELA DE LISTAGEM GERAL ---
     function renderTable() {
         if (!tableBody) return;
         tableBody.innerHTML = '';
@@ -480,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tableBody.appendChild(tr);
         });
 
-        document.querySelectorAll('.btn-del').forEach(btn => {
+        document.querySelectorAll('.btn-del:not(.btn-del-sector)').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.getAttribute('data-id');
                 if (confirm("Deseja remover este produto definitivamente?")) {
