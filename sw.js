@@ -1,11 +1,12 @@
-const CACHE_NAME = 'web-validade-v67'; // Atualizado para v67 para limpar o cache antigo e aplicar as correções
+const CACHE_NAME = 'web-validade-v64'; // Atualizado para v64 para limpar o cache antigo e aplicar a tela de setores
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './firebase-config.js',
-  './manifest.json'
+  './manifest.json',
+  './painel.html'
 ];
 
 // Instalação: Salva os arquivos essenciais no cache
