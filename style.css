@@ -535,11 +535,12 @@ tr:hover td {
     }
 
     /* Ajuste fino de largura para dar prioridade ao nome do produto */
-    th:nth-child(1), td:nth-child(1) { width: 22%; } /* Cód. Barras */
-    th:nth-child(2), td:nth-child(2) { width: 43%; } /* Produto (Ganha mais espaço) */
-    th:nth-child(3), td:nth-child(3) { width: 8%; }  /* Qtd */
-    th:nth-child(4), td:nth-child(4) { width: 17%; } /* Vencimento */
-    th:nth-child(5), td:nth-child(5) { width: 10%; } /* Ação */
+    th:nth-child(1), td:nth-child(1) { width: 18%; } /* Cód. Barras */
+    th:nth-child(2), td:nth-child(2) { width: 32%; } /* Produto */
+    th:nth-child(3), td:nth-child(3) { width: 18%; } /* Setor (Novo) */
+    th:nth-child(4), td:nth-child(4) { width: 8%; }  /* Qtd */
+    th:nth-child(5), td:nth-child(5) { width: 14%; } /* Vencimento / Faltam */
+    th:nth-child(6), td:nth-child(6) { width: 12%; } /* Ação */
 
     /* Enxuga o botão de remover para virar um elemento de toque rápido e menor */
     .btn-del {
