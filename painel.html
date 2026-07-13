@@ -93,11 +93,11 @@
                 </div>
             </div>
 
-            <div class="dash-card card-darkpurple">
+            <div class="dash-card card-darkpurple" id="btn-card-setor">
                 <div class="card-icon">📍</div>
                 <div class="card-info">
                     <h3>SETOR</h3>
-                    <span class="card-counter">0</span>
+                    <span class="card-counter" id="count-setores">0</span>
                 </div>
             </div>
 
@@ -193,7 +193,7 @@
         </div>
 
         <!-- MODAL DE CADASTRO DE SETOR -->
-        <div id="modal-sector" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+        <div id="modal-sector" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;">
             <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px;">
                 <h3>Adicionar Novo Setor</h3>
                 <form id="sector-form" style="margin-top: 15px;">
@@ -264,6 +264,35 @@
                             </tr>
                         </thead>
                         <tbody id="avencer-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ABA DE GERENCIAMENTO DE SETORES -->
+        <div id="view-setor" class="page-content hidden">
+            <section class="module-section">
+                <h2>🏢 Cadastrar e Gerenciar Setores</h2>
+                
+                <form id="direct-sector-form" class="product-form" style="margin-bottom: 24px; align-items: flex-end;">
+                    <div class="form-group size-large">
+                        <label for="direct-sector-name">Nome do Novo Setor</label>
+                        <input type="text" id="direct-sector-name" placeholder="Ex: BEBIDAS, MERCEARIA, FRIOS" required>
+                    </div>
+                    <button type="submit" class="btn-submit-prod" style="background-color: #16a34a;">+ Cadastrar Setor</button>
+                </form>
+
+                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">Setores Existentes</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome do Setor</th>
+                                <th style="width: 15%; text-align: center;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sector-table-body">
+                            </tbody>
                     </table>
                 </div>
             </section>
