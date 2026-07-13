@@ -176,19 +176,16 @@
                     </div>
                     <div class="form-group size-medium">
                         <label for="product-sector">Setor</label>
-                        <div style="display: flex; gap: 8px;">
-                            <select id="product-sector" required style="flex: 1;">
-                                <option value="">Selecione um Setor</option>
-                            </select>
-                            <button type="button" id="btn-add-sector-modal" class="btn-small" style="padding: 0 10px;">+</button>
-                        </div>
+                        <select id="product-sector" required>
+                            <option value="">Selecione um Setor</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn-submit-prod">Salvar Produto</button>
                 </form>
             </section>
         </div>
 
-        <div id="modal-sector" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+        <div id="modal-sector" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;">
             <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px;">
                 <h3>Adicionar Novo Setor</h3>
                 <form id="sector-form" style="margin-top: 15px;">
