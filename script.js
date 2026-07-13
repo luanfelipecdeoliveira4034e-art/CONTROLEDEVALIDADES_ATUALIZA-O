@@ -606,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td data-label="Setor"><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
                         <td data-label="Qtd"><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
                         <td data-label="Vencimento">${dataFormatada}</td>
-                        <td data-label="Dias"><span class="badge vencido" style="background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">${diffDays} dias</span></td>
+                        <td data-label="Faltam"><span class="badge vencido" style="background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5;">${diffDays} dias</span></td>
                     `;
                     avencerTableBody.appendChild(tr);
                 }
