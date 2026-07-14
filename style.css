@@ -492,105 +492,106 @@ tr:hover td {
 }
 
 /* ==========================================================================
-   10. OTIMIZAÇÃO EM FORMATO DE CARDS PARA DISPOSITIVOS MÓVEIS (CELULARES)
+   10. OTIMIZAÇÃO COMPACTA PARA DISPOSITIVOS MÓVEIS (CELULARES)
    ========================================================================== */
 @media (max-width: 768px) {
     body {
         padding: 10px;
     }
 
-    /* Remove fundos e bordas padrão da tabela no celular */
-    table, thead, tbody, th, td, tr {
+    /* Remove o fundo branco padrão da seção no celular para os cards se destacarem */
+    .view-content, .module-section {
+        background-color: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .module-section h2 {
+        padding-left: 8px;
+        margin-bottom: 16px;
+    }
+
+    /* Oculta o cabeçalho padrão da tabela */
+    table thead {
+        display: none;
+    }
+
+    /* Transforma a tabela e o corpo em blocos flexíveis */
+    table, tbody {
         display: block;
         width: 100%;
     }
 
-    /* Esconde o cabeçalho original da tabela no celular */
-    thead {
-        display: none;
-    }
-
-    /* Transforma cada linha (tr) das tabelas em um Card separado */
-    #product-table-body tr, 
-    #sector-table-body tr, 
-    #colaborador-table-body tr {
-        background-color: #ffffff;
+    /* Transforma cada linha (tr) em um CARD isolado */
+    table tr {
+        display: block;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        margin-bottom: 16px; /* Espaço crucial entre os blocos */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    /* Transforma cada célula (td) em uma linha interna com divisor horizontal */
-    #product-table-body td, 
-    #sector-table-body td, 
-    #colaborador-table-body td {
+    /* Força cada célula (td) a se comportar como uma linha flexível dentro do card */
+    table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0 !important;
-        border-bottom: 1px solid #f1f5f9; /* Linha que separa as informações */
-        width: 100% !important;
-        text-align: right;
+        padding: 10px 0 !important;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        width: 100% !important; /* Anula as larguras em porcentagem do desktop */
     }
 
-    /* Remove a linha divisória do último item de cada bloco (botões de ação) */
-    #product-table-body td:last-child, 
-    #sector-table-body td:last-child, 
-    #colaborador-table-body td:last-child {
+    /* Remove a borda divisória do último elemento do card */
+    table td:last-child {
         border-bottom: none;
         padding-bottom: 0 !important;
     }
 
-    /* Insere os rótulos automáticos na esquerda (Produto, Qtd, Vencimento...) */
-    #product-table-body td::before, 
-    #sector-table-body td::before, 
-    #colaborador-table-body td::before {
+    /* Gera os rótulos do lado esquerdo dinamicamente */
+    table td::before {
         content: attr(data-label);
-        font-size: 13px;
         font-weight: 700;
         color: #94a3b8;
         text-transform: uppercase;
+        font-size: 12px;
         letter-spacing: 0.5px;
-        text-align: left;
-        flex: 1;
     }
 
-    /* Alinha o conteúdo dos dados à direita do bloco */
-    #product-table-body td > *, 
-    #sector-table-body td > *, 
-    #colaborador-table-body td > * {
+    /* Alinhamentos específicos para os valores do lado direito */
+    table td strong {
         text-align: right;
-        max-width: 70%;
-    }
-
-    #product-table-body td strong, 
-    #sector-table-body td strong, 
-    #colaborador-table-body td strong {
-        font-size: 14px;
-        line-height: 1.3;
+        max-width: 65%;
         word-break: break-word;
+        font-size: 14px;
     }
 
-    /* Ajusta os botões de remover dentro do celular */
-    .btn-del, .btn-del-colaborador, .btn-del-sector {
-        padding: 8px 20px !important;
-        font-size: 13px !important;
+    table td span {
+        text-align: right;
+    }
+
+    /* Ajuste do botão de remover para ficar alinhado à direita */
+    .btn-del {
+        padding: 6px 16px !important;
+        font-size: 12px !important;
         background-color: #ef4444 !important;
         color: white !important;
         border: none !important;
         border-radius: 6px;
-        cursor: pointer;
-        width: auto !important;
+        font-weight: 600;
     }
-    
-    /* Configurações do cabeçalho do painel no celular */
+
+    /* Ajuste fino no cabeçalho do app para não amassar os botões */
     .dashboard-header {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
         padding: 12px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .header-actions {
