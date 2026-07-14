@@ -278,8 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
             listaSetores.forEach((setor) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td data-label="Setor"><strong>${setor.nome}</strong></td>
-                    <td data-label="Ação" style="text-align: center;">
+                    <td><strong>${setor.nome}</strong></td>
+                    <td style="text-align: center;">
                         <button class="btn-del btn-del-sector" data-id="${setor.id}">Remover</button>
                     </td>
                 `;
@@ -320,8 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
             listaColaboradores.forEach((colaborador) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td data-label="Colaborador"><strong>${colaborador.nome}</strong></td>
-                    <td data-label="Ação" style="text-align: center;">
+                    <td><strong>${colaborador.nome}</strong></td>
+                    <td style="text-align: center;">
                         <button class="btn-del btn-del-colaborador" data-id="${colaborador.id}">Remover</button>
                     </td>
                 `;
@@ -541,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const expDate = new Date(product.expiry + 'T00:00:00');
             const barcodeText = product.barcode ? product.barcode : '---';
             const qtyText = product.quantity ? product.quantity : '1';
-            const sectorText = product.sector ? product.sector : 'Geral';
 
             const [ano, mes, dia] = product.expiry.split('-');
             const dataFormatada = (ano && mes && dia) ? `${dia}/${mes}/${ano}` : expDate.toLocaleDateString('pt-BR');
@@ -550,7 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td data-label="Cód. Barras"><span style="font-family: monospace; color:#64748b;">${barcodeText}</span></td>
                 <td data-label="Produto"><strong>${product.name}</strong></td>
-                <td data-label="Setor"><span class="badge-sector" style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${sectorText}</span></td>
                 <td data-label="Qtd"><span style="font-weight: 600; color: #1e293b;">${qtyText}</span></td>
                 <td data-label="Vencimento">${dataFormatada}</td>
                 <td data-label="Ação"><button class="btn-del" data-id="${product.id}">Remover</button></td>
