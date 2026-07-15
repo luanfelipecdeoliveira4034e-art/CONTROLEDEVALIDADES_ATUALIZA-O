@@ -155,18 +155,21 @@
                     <button type="button" id="btn-stop-scan" class="btn-scan-stop">Fechar Câmera</button>
                 </div>
                 <form id="product-form" class="product-form">
-                    <div class="form-group size-medium">
-                        <label for="product-barcode">Código de Barras</label>
-                        <input type="text" id="product-barcode" placeholder="Código">
-                    </div>
-                    
-                    <div class="form-group size-mini">
-                        <label for="product-quantity">Qtd.</label>
-                        <input type="number" id="product-quantity" min="1" placeholder="Ex: 5" required>
-                    </div>
+                    <div class="form-row-group">
+                        <div class="form-group size-medium" id="wrapper-barcode">
+                            <label for="product-barcode">Código de Barras</label>
+                            <input type="text" id="product-barcode" placeholder="Código">
+                        </div>
+                        
+                        <div class="form-group size-mini" id="wrapper-quantity">
+                            <label for="product-quantity">Qtd.</label>
+                            <input type="number" id="product-quantity" min="1" placeholder="Ex: 5" required>
+                        </div>
 
-                    <div class="form-group size-medium">
-                        <label>&nbsp;</label> <button type="button" id="btn-scan" class="btn-scan-trigger-new" title="Escanear com a câmera">📷 Escanear Código</button>
+                        <div class="form-group size-medium" id="wrapper-scan">
+                            <label class="label-scan-desktop">&nbsp;</label>
+                            <button type="button" id="btn-scan" class="btn-scan-trigger-new" title="Escanear com a câmera">📷 Escanear Código</button>
+                        </div>
                     </div>
 
                     <div class="form-group size-large">
