@@ -625,3 +625,27 @@ tr:hover td {
     border-radius: 8px;
     border: 1px solid #e2e8f0;
 }
+
+/* Novo Botão de Scan Independente e Destacado */
+.btn-scan-trigger-new {
+    height: 42px;
+    background-color: #475569;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-scan-trigger-new:hover {
+    background-color: #334155;
+}
