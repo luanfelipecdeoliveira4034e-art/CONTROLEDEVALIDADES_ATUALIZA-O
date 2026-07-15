@@ -1,4 +1,4 @@
-const CACHE_NAME = 'web-validade-v77'; // Atualizado para v77 para limpar o cache antigo e aplicar as correções
+const CACHE_NAME = 'web-validade-v78'; // Atualizado para v78 para limpar o cache antigo e aplicar as correções
 const urlsToCache = [
   './',
   './index.html',
