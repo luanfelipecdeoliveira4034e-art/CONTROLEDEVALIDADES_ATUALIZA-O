@@ -649,3 +649,75 @@ tr:hover td {
 .btn-scan-trigger-new:hover {
     background-color: #334155;
 }
+
+/* ==========================================================================
+   ESTILIZAÇÃO DO NOVO BOTÃO DE SCAN E LINHAS DO FORMULÁRIO
+   ========================================================================== */
+.form-row-group {
+    display: flex;
+    flex: 1 1 100%;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.btn-scan-trigger-new {
+    height: 42px;
+    background-color: #475569;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-scan-trigger-new:hover {
+    background-color: #334155;
+}
+
+/* Regras específicas de responsividade para Celular */
+@media (max-width: 768px) {
+    .form-row-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 16px;
+    }
+
+    /* Ordem de exibição dos elementos na primeira seção */
+    #wrapper-scan {
+        order: 1; /* Botão de Scan fica em 1º lugar */
+        width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    #wrapper-barcode {
+        order: 2; /* Código de barras fica em 2º lugar... */
+        width: 65% !important;
+        flex: 1 1 65% !important;
+    }
+
+    #wrapper-quantity {
+        order: 3; /* ...dividindo espaço lado a lado com a Quantidade */
+        width: 30% !important;
+        flex: 1 1 30% !important;
+    }
+
+    /* Remove o espaço em branco usado no desktop para alinhar verticalmente */
+    .label-scan-desktop {
+        display: none !important;
+    }
+
+    /* Faz a linha das caixas de entrada Código + Qtd se comportarem como uma linha só */
+    .form-row-group {
+        display: flex !important;
+        flex-flow: row wrap !important;
+    }
+}
