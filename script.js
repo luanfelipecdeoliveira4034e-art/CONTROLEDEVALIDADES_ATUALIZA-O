@@ -645,7 +645,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     productBarcodeInput.value = '';
                     productNameInput.value = '';
                     productExpiryInput.value = '';
-                    productSectorInput.value = '';
                     if (productQuantityInput) productQuantityInput.value = ""; // Modificado aqui para não preencher com 1
                     if (productBarcodeInput) productBarcodeInput.focus();
                 } catch (err) {
